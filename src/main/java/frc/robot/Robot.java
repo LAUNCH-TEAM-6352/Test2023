@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -23,6 +25,8 @@ public class Robot extends TimedRobot
 
     private RobotContainer m_robotContainer;
 
+    private BuiltInAccelerometer builtInAccelerometer;
+
     /**
      * This function is run when the robot is first started up and should be used
      * for any
@@ -35,6 +39,7 @@ public class Robot extends TimedRobot
         // and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
+        builtInAccelerometer = new BuiltInAccelerometer();
     }
 
     /**
@@ -91,6 +96,14 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic()
     {
+        SmartDashboard.putNumber("x", truncate(builtInAccelerometer.getX()));
+        SmartDashboard.putNumber("y", truncate(builtInAccelerometer.getY()));
+        SmartDashboard.putNumber("z", truncate(builtInAccelerometer.getZ()));
+    }
+
+    private double truncate(double value)
+    {
+        return Math.round(value * 100.0) / 100.0;
     }
 
     @Override
@@ -110,6 +123,7 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic()
     {
+
     }
 
     @Override
