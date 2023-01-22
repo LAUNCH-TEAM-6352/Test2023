@@ -96,16 +96,9 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic()
     {
-        SmartDashboard.putNumber("x", round(builtInAccelerometer.getX(), 2));
-        SmartDashboard.putNumber("y", round(builtInAccelerometer.getY(), 2));
-        SmartDashboard.putNumber("z", round(builtInAccelerometer.getZ(), 2));
-    }
-
-    /** Rounds the provided value to the specified number of decimal places. */
-    private double round(double value, int decimalPlaces)
-    {
-        double factor = Math.pow(10.0, decimalPlaces);
-        return Math.round(value * factor) / factor;
+        SmartDashboard.putNumber("x", Util.round(builtInAccelerometer.getX(), 2));
+        SmartDashboard.putNumber("y", Util.round(builtInAccelerometer.getY(), 2));
+        SmartDashboard.putNumber("z", Util.round(builtInAccelerometer.getZ(), 2));
     }
 
     @Override
