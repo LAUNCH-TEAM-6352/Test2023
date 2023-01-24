@@ -4,7 +4,9 @@
 
 package frc.robot;
 
-/** Add your docs here. */
+/**
+ * General utility methods.
+ */
 public class Util
 { 
     /** Rounds the provided value to the specified number of decimal places. */
