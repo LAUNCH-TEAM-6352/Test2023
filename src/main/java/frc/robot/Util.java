@@ -6,6 +6,7 @@ package frc.robot;
 
 /**
  * General utility methods.
+ * @author Koehring
  */
 public class Util
 { 
