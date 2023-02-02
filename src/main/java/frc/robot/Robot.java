@@ -4,11 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,6 +31,12 @@ public class Robot extends TimedRobot
 
     private BuiltInAccelerometer builtInAccelerometer;
 
+    public static ADIS16470_IMU adis16470Imu;
+
+    public DigitalOutput digitalOutput;
+    
+    public Joystick joystick;
+
     /**
      * This function is run when the robot is first started up and should be used
      * for any
@@ -40,6 +50,9 @@ public class Robot extends TimedRobot
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
         builtInAccelerometer = new BuiltInAccelerometer();
+        adis16470Imu = new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
+        digitalOutput = new DigitalOutput(0);
+        joystick = new Joystick(0);
     }
 
     /**
@@ -96,9 +109,14 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic()
     {
-        SmartDashboard.putNumber("x", Util.round(builtInAccelerometer.getX(), 2));
-        SmartDashboard.putNumber("y", Util.round(builtInAccelerometer.getY(), 2));
-        SmartDashboard.putNumber("z", Util.round(builtInAccelerometer.getZ(), 2));
+        SmartDashboard.putNumber("onBoardX", Util.round(builtInAccelerometer.getX(), 2));
+        SmartDashboard.putNumber("onBoardY", Util.round(builtInAccelerometer.getY(), 2));
+        SmartDashboard.putNumber("onBoardZ", Util.round(builtInAccelerometer.getZ(), 2));
+        SmartDashboard.putNumber("accelX", Util.round(adis16470Imu.getAccelX(), 2));
+        SmartDashboard.putNumber("accelY", Util.round(adis16470Imu.getAccelY(), 2));
+        SmartDashboard.putNumber("accelZ", Util.round(adis16470Imu.getAccelZ(), 2));
+        SmartDashboard.putNumber("angle", Util.round(adis16470Imu.getAngle(), 2));
+
     }
 
     @Override
@@ -118,7 +136,7 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic()
     {
-
+        digitalOutput.set(joystick.getTrigger());
     }
 
     @Override
