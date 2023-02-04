@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -35,7 +36,7 @@ public class Robot extends TimedRobot
 
     public DigitalOutput digitalOutput;
     
-    public Joystick joystick;
+    public XboxController gamepad;
 
     public REVDigitBoard revDigitBoard;
 
@@ -47,7 +48,7 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit()
     {
-        boolean koehringTesting = true;
+        boolean koehringTesting = false;
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
@@ -56,7 +57,7 @@ public class Robot extends TimedRobot
         builtInAccelerometer = new BuiltInAccelerometer();
         adis16470Imu = koehringTesting ? null : new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
         digitalOutput = koehringTesting ? null : new DigitalOutput(0);
-        joystick = koehringTesting ? null : new Joystick(0);
+        gamepad = koehringTesting ? null : new XboxController(0);
         revDigitBoard = koehringTesting ? new REVDigitBoard() : null;
 
         if (revDigitBoard != null)
@@ -136,6 +137,7 @@ public class Robot extends TimedRobot
             SmartDashboard.putNumber("accelY", Util.round(adis16470Imu.getAccelY(), 2));
             SmartDashboard.putNumber("accelZ", Util.round(adis16470Imu.getAccelZ(), 2));
             SmartDashboard.putNumber("angle", Util.round(adis16470Imu.getAngle(), 2));
+            SmartDashboard.putData("IMU", adis16470Imu);
         }
 
         if (revDigitBoard != null)
@@ -161,9 +163,9 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic()
     {
-        if (digitalOutput != null && joystick != null)
+        if (digitalOutput != null && gamepad != null)
         {
-            digitalOutput.set(joystick.getTrigger());
+            digitalOutput.set(gamepad.getAButton());
         }
     }
 
