@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -71,7 +70,12 @@ public class RobotContainer
 
     private void configureSmartDashboard()
     {
-        SmartDashboard.putData("reset angle", new InstantCommand(() -> Robot.adis16470Imu.reset()));
+        if (Robot.adis16470Imu != null)
+        {
+            SmartDashboard.putData("reset angle", new InstantCommand(() -> Robot.adis16470Imu.reset()));
+        }
+
+        SmartDashboard.putString("koehringTest", "MR. K");
     }
 
     /**

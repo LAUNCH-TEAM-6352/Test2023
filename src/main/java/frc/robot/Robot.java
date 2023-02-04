@@ -37,6 +37,8 @@ public class Robot extends TimedRobot
     
     public Joystick joystick;
 
+    public REVDigitBoard revDigitBoard;
+
     /**
      * This function is run when the robot is first started up and should be used
      * for any
@@ -45,14 +47,22 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit()
     {
+        boolean koehringTesting = true;
+
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
         builtInAccelerometer = new BuiltInAccelerometer();
-        adis16470Imu = new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
-        digitalOutput = new DigitalOutput(0);
-        joystick = new Joystick(0);
+        adis16470Imu = koehringTesting ? null : new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
+        digitalOutput = koehringTesting ? null : new DigitalOutput(0);
+        joystick = koehringTesting ? null : new Joystick(0);
+        revDigitBoard = koehringTesting ? new REVDigitBoard() : null;
+
+        if (revDigitBoard != null)
+        {
+            revDigitBoard.clear();
+        }
     }
 
     /**
@@ -87,6 +97,10 @@ public class Robot extends TimedRobot
     @Override
     public void disabledPeriodic()
     {
+        if (revDigitBoard != null)
+        {
+            revDigitBoard.display(SmartDashboard.getString("koehringTest", "NULL"));
+        }
     }
 
     /**
@@ -109,14 +123,25 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic()
     {
-        SmartDashboard.putNumber("onBoardX", Util.round(builtInAccelerometer.getX(), 2));
-        SmartDashboard.putNumber("onBoardY", Util.round(builtInAccelerometer.getY(), 2));
-        SmartDashboard.putNumber("onBoardZ", Util.round(builtInAccelerometer.getZ(), 2));
-        SmartDashboard.putNumber("accelX", Util.round(adis16470Imu.getAccelX(), 2));
-        SmartDashboard.putNumber("accelY", Util.round(adis16470Imu.getAccelY(), 2));
-        SmartDashboard.putNumber("accelZ", Util.round(adis16470Imu.getAccelZ(), 2));
-        SmartDashboard.putNumber("angle", Util.round(adis16470Imu.getAngle(), 2));
+        if (builtInAccelerometer != null)
+        {
+            SmartDashboard.putNumber("onBoardX", Util.round(builtInAccelerometer.getX(), 2));
+            SmartDashboard.putNumber("onBoardY", Util.round(builtInAccelerometer.getY(), 2));
+            SmartDashboard.putNumber("onBoardZ", Util.round(builtInAccelerometer.getZ(), 2));
+        }
 
+        if (adis16470Imu != null)
+        {
+            SmartDashboard.putNumber("accelX", Util.round(adis16470Imu.getAccelX(), 2));
+            SmartDashboard.putNumber("accelY", Util.round(adis16470Imu.getAccelY(), 2));
+            SmartDashboard.putNumber("accelZ", Util.round(adis16470Imu.getAccelZ(), 2));
+            SmartDashboard.putNumber("angle", Util.round(adis16470Imu.getAngle(), 2));
+        }
+
+        if (revDigitBoard != null)
+        {
+            revDigitBoard.display(SmartDashboard.getString("koehringTest", "NULL"));
+        }
     }
 
     @Override
@@ -136,7 +161,10 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic()
     {
-        digitalOutput.set(joystick.getTrigger());
+        if (digitalOutput != null && joystick != null)
+        {
+            digitalOutput.set(joystick.getTrigger());
+        }
     }
 
     @Override
