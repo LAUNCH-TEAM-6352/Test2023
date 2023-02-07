@@ -4,9 +4,13 @@
 
 package frc.robot;
 
+import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -24,18 +28,45 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer
 {
+	private final XboxController gamepad;
+	private final Joystick leftStick;
+	private final Joystick rightStick;
+    private final String gameData;
+    
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-
-    // Replace with CommandPS4Controller or CommandJoystick if needed
-    //private final CommandXboxController m_driverController = new CommandXboxController(
-                   // OperatorConstants.kDriverControllerPort);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer()
     {
+        gameData = DriverStation.getGameSpecificMessage();
+        SmartDashboard.putString("Game Data", gameData);
+
+        // Create OI devices:
+        // Explicitly look for OI devices:
+        gamepad = DriverStation.isJoystickConnected(OIConstants.gamepadPort)
+            ? new XboxController(OIConstants.gamepadPort)
+            : null;
+        leftStick = DriverStation.isJoystickConnected(OIConstants.leftJoystickPort)
+            ? new Joystick(OIConstants.leftJoystickPort)
+            : null;
+        rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
+            ? new Joystick(OIConstants.rightJoystickPort)
+            : null;
+
+        SmartDashboard.putBoolean("Gamepad Detected", gamepad != null);
+        SmartDashboard.putBoolean("Left Joystick Detected", leftStick != null);
+        SmartDashboard.putBoolean("Right Joystick Detected", rightStick != null);
+
+        if (gamepad != null)
+        {
+            SmartDashboard.putNumber("GP Axes", gamepad.getAxisCount());
+        }
+    
+
+
         // Configure the trigger bindings
         configureBindings();
 
@@ -70,11 +101,7 @@ public class RobotContainer
 
     private void configureSmartDashboard()
     {
-        if (Robot.adis16470Imu != null)
-        {
-            SmartDashboard.putData("reset angle", new InstantCommand(() -> Robot.adis16470Imu.reset()));
-        }
-
+        SmartDashboard.putData("resetAngle", new InstantCommand(() -> Robot.adis16470Imu.reset()));
         SmartDashboard.putString("koehringTest", "MR. K");
     }
 

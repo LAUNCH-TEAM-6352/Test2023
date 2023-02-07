@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.DigitalOutput;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -48,7 +48,7 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit()
     {
-        boolean koehringTesting = false;
+        boolean koehringTesting = DriverStation.getGameSpecificMessage().toLowerCase().contains("-jrk-");
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
