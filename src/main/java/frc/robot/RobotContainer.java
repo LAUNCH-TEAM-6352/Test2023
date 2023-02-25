@@ -7,7 +7,9 @@ package frc.robot;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.SetLinearServoPosition;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.LinearServo;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -32,6 +34,7 @@ public class RobotContainer
 	private final Joystick leftStick;
 	private final Joystick rightStick;
     private final String gameData;
+    private final LinearServo linearServo;
     
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -55,16 +58,14 @@ public class RobotContainer
         rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
             ? new Joystick(OIConstants.rightJoystickPort)
             : null;
-
-        SmartDashboard.putBoolean("Gamepad Detected", gamepad != null);
-        SmartDashboard.putBoolean("Left Joystick Detected", leftStick != null);
-        SmartDashboard.putBoolean("Right Joystick Detected", rightStick != null);
+        linearServo = gameData.contains("-ls-") ? new LinearServo() : null;
 
         if (gamepad != null)
         {
             SmartDashboard.putNumber("GP Axes", gamepad.getAxisCount());
         }
     
+        SmartDashboard.putNumber("LS Position", 0.0);
 
 
         // Configure the trigger bindings
@@ -101,8 +102,21 @@ public class RobotContainer
 
     private void configureSmartDashboard()
     {
-        SmartDashboard.putData("resetAngle", new InstantCommand(() -> Robot.adis16470Imu.reset()));
+        SmartDashboard.putBoolean("Gamepad Detected", gamepad != null);
+        SmartDashboard.putBoolean("Left Joystick Detected", leftStick != null);
+        SmartDashboard.putBoolean("Right Joystick Detected", rightStick != null);
+        
+        if (Robot.adis16470Imu != null)
+        {
+            SmartDashboard.putData("resetAngle", new InstantCommand(() -> Robot.adis16470Imu.reset()));
+        }
+
         SmartDashboard.putString("koehringTest", "MR. K");
+
+        if (linearServo != null)
+        {
+            SmartDashboard.putData("Move LS", new SetLinearServoPosition(linearServo));
+        }
     }
 
     /**

@@ -48,17 +48,22 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit()
     {
-        boolean koehringTesting = DriverStation.getGameSpecificMessage().toLowerCase().contains("-jrk-");
+        var gameData = DriverStation.getGameSpecificMessage().toLowerCase();
+        var koehringTesting = gameData.contains("-jk-");
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
         builtInAccelerometer = new BuiltInAccelerometer();
-        adis16470Imu = koehringTesting ? null : new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
-        digitalOutput = koehringTesting ? null : new DigitalOutput(0);
-        gamepad = koehringTesting ? null : new XboxController(0);
+        adis16470Imu = gameData.contains("-imu-") ? new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s) : null;
+        digitalOutput = gameData.contains("-do-") ? new DigitalOutput(0) : null;
         revDigitBoard = koehringTesting ? new REVDigitBoard() : null;
+
+        gamepad = DriverStation.isJoystickConnected(0)
+            ? new XboxController(0)
+            : null;
+
 
         if (revDigitBoard != null)
         {
