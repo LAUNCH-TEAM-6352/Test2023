@@ -7,16 +7,21 @@ package frc.robot;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.SetEncodedMotorPosition;
+import frc.robot.commands.SetEncodedMotorSpeed;
 import frc.robot.commands.SetLinearServoPosition;
+import frc.robot.subsystems.EncodedMotor;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.LinearServo;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -35,6 +40,7 @@ public class RobotContainer
 	private final Joystick rightStick;
     private final String gameData;
     private final LinearServo linearServo;
+    private final EncodedMotor encodedMotor;
     
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -59,6 +65,7 @@ public class RobotContainer
             ? new Joystick(OIConstants.rightJoystickPort)
             : null;
         linearServo = gameData.contains("-ls-") ? new LinearServo() : null;
+        encodedMotor = gameData.contains("-em-") ? new EncodedMotor() : null;
 
         if (gamepad != null)
         {
@@ -90,14 +97,23 @@ public class RobotContainer
      */
     private void configureBindings()
     {
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-        new Trigger(m_exampleSubsystem::exampleCondition)
-                        .onTrue(new ExampleCommand(m_exampleSubsystem));
+        if (gamepad == null)
+        {
+            return;
+        }
+        
+        var leftBumper = new JoystickButton(gamepad, Button.kLeftBumper.value);
+        var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
 
-        // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-        // pressed,
-        // cancelling on release.
-       // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+        if (encodedMotor != null)
+        {
+            leftBumper.whileTrue(
+                new SetEncodedMotorSpeed(encodedMotor, "Motor Rev Speed")
+                .until(rightBumper::getAsBoolean));
+            rightBumper.whileTrue(
+                new SetEncodedMotorSpeed(encodedMotor, "Motor Fwd Speed")
+                .until(leftBumper::getAsBoolean));
+        }
     }
 
     private void configureSmartDashboard()
@@ -116,6 +132,16 @@ public class RobotContainer
         if (linearServo != null)
         {
             SmartDashboard.putData("Move LS", new SetLinearServoPosition(linearServo));
+        }
+
+        if (encodedMotor != null)
+        {
+            SmartDashboard.putNumber("Motor Target Pos", 103538);
+            SmartDashboard.putNumber("Motor Pos Tolerance", 100);
+            SmartDashboard.putNumber("Motor Fwd Speed", 0.08);
+            SmartDashboard.putNumber("Motor Rev Speed", -0.08);
+            SmartDashboard.putData("Reset Motor Pos", new InstantCommand(() -> encodedMotor.resetPosition()));
+            SmartDashboard.putData("Set Motor Pos", new SetEncodedMotorPosition(encodedMotor, "Motor Target Pos", "Motor Pos Tolerance"));
         }
     }
 
