@@ -137,7 +137,7 @@ public class RobotContainer
         if (encodedMotor != null)
         {
             SmartDashboard.putNumber("Motor Target Pos", 103538);
-            SmartDashboard.putNumber("Motor Pos Tolerance", 100);
+            SmartDashboard.putNumber("Motor Pos Tolerance", 400);
             SmartDashboard.putNumber("Motor Fwd Speed", 0.08);
             SmartDashboard.putNumber("Motor Rev Speed", -0.08);
             SmartDashboard.putData("Reset Motor Pos", new InstantCommand(() -> encodedMotor.resetPosition()));
