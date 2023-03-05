@@ -6,11 +6,13 @@ package frc.robot;
 
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.SetEncodedMotorPosition;
 import frc.robot.commands.SetEncodedMotorSpeed;
+import frc.robot.commands.SetEncodedMotorsPosition;
+import frc.robot.commands.SetEncodedMotorsSpeed;
 import frc.robot.commands.SetLinearServoPosition;
 import frc.robot.subsystems.EncodedMotor;
+import frc.robot.subsystems.EncodedMotors;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.LinearServo;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -41,6 +43,7 @@ public class RobotContainer
     private final String gameData;
     private final LinearServo linearServo;
     private final EncodedMotor encodedMotor;
+    private final EncodedMotors encodedMotors;
     
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -66,6 +69,7 @@ public class RobotContainer
             : null;
         linearServo = gameData.contains("-ls-") ? new LinearServo() : null;
         encodedMotor = gameData.contains("-em-") ? new EncodedMotor() : null;
+        encodedMotors = gameData.contains("-ems-") ? new EncodedMotors() : null;
 
         if (gamepad != null)
         {
@@ -108,11 +112,17 @@ public class RobotContainer
         if (encodedMotor != null)
         {
             leftBumper.whileTrue(
-                new SetEncodedMotorSpeed(encodedMotor, "Motor Rev Speed")
+                new SetEncodedMotorSpeed(encodedMotor, "Motor Rev %")
                 .until(rightBumper::getAsBoolean));
             rightBumper.whileTrue(
-                new SetEncodedMotorSpeed(encodedMotor, "Motor Fwd Speed")
+                new SetEncodedMotorSpeed(encodedMotor, "Motor Fwd %")
                 .until(leftBumper::getAsBoolean));
+        }
+
+        if (encodedMotors != null)
+        {
+            leftBumper.whileTrue(new SetEncodedMotorsSpeed(encodedMotors, "Motor Rev %"));
+            rightBumper.whileTrue(new SetEncodedMotorsSpeed(encodedMotors, "Motor Fwd %"));
         }
     }
 
@@ -136,12 +146,24 @@ public class RobotContainer
 
         if (encodedMotor != null)
         {
-            SmartDashboard.putNumber("Motor Target Pos", 103538);
-            SmartDashboard.putNumber("Motor Pos Tolerance", 400);
-            SmartDashboard.putNumber("Motor Fwd Speed", 0.08);
-            SmartDashboard.putNumber("Motor Rev Speed", -0.08);
+            SmartDashboard.putNumber("Motor Target Pos", 25.27778);
+            SmartDashboard.putNumber("Motor PID Tolerance", 400);
+            SmartDashboard.putNumber("Motor Fwd %", 0.08);
+            SmartDashboard.putNumber("Motor Rev %", -0.08);
+            SmartDashboard.putNumber("Motor PID %", 0.08);
             SmartDashboard.putData("Reset Motor Pos", new InstantCommand(() -> encodedMotor.resetPosition()));
-            SmartDashboard.putData("Set Motor Pos", new SetEncodedMotorPosition(encodedMotor, "Motor Target Pos", "Motor Pos Tolerance"));
+            SmartDashboard.putData("Set Motor Pos", new SetEncodedMotorPosition(encodedMotor, "Motor Target Pos", "Motor PID Tolerance"));
+        }
+
+        if (encodedMotors != null)
+        {
+            SmartDashboard.putNumber("Motor Target Pos", 24.0);
+            SmartDashboard.putNumber("Motor PID Tolerance", 0.5);
+            SmartDashboard.putNumber("Motor Fwd %", 0.08);
+            SmartDashboard.putNumber("Motor Rev %", -0.08);
+            SmartDashboard.putNumber("Motor PID %", 0.08);
+            SmartDashboard.putData("Reset Motor Pos", new InstantCommand(() -> encodedMotors.resetPosition()));
+            SmartDashboard.putData("Set Motor Pos", new SetEncodedMotorsPosition(encodedMotors, "Motor Target Pos", "Motor PID Tolerance"));
         }
     }
 

@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LinearServo extends SubsystemBase
 {
-    private final Servo linearServo = new Servo(9);
+    private final Servo linearServo = new Servo(0);
 
     private final PWMConfigDataResult bounds;
     
@@ -29,14 +29,19 @@ public class LinearServo extends SubsystemBase
     public  void setPosition(double position)
     {
         var raw = (int) Math.round((bounds.max - bounds.min) * position + bounds.min);
-        SmartDashboard.putNumber("LS Raw Out", raw);
-        linearServo.setRaw(raw);
+        //SmartDashboard.putNumber("LS Raw Out", raw);
+        //linearServo.setRaw(raw);
+
+        //linearServo.setPosition(position);
+        linearServo.setAngle(position);
     }
 
     @Override
     public void periodic()
     {
         SmartDashboard.putNumber("LS Raw Pos", linearServo.getRaw());
+        SmartDashboard.putNumber("LS Cur Pos", linearServo.getPosition());
+        SmartDashboard.putNumber("LS Cur Ang", linearServo.getAngle());
         // This method will be called once per scheduler run
     }
 }
