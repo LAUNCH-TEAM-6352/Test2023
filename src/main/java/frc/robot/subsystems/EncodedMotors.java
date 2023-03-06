@@ -29,9 +29,12 @@ public class EncodedMotors extends SubsystemBase
     //   - There is a 70:1 gear reduction.
     //   - Total back to front motion of the arm is about 200 degrees
     //   - Arm zero start position is about 70 degrees up from back position
-    private final float forwardLimit = 25.277778f;
-    private final float reverseLimit = -13.611111f;
-
+    private final float gearReduction = 70.0f;
+    private final float revsPerDegree = gearReduction / 360.0f;
+    private final float forwardLimitDegrees = 130.0f;
+    private final float reverseLimitDegrees = -70.0f;
+    private final float forwardLimitRevs = revsPerDegree * forwardLimitDegrees;
+    private final float reverseLimitRevs = revsPerDegree * reverseLimitDegrees;
     /** Creates a new TalonSRX. */
     public EncodedMotors()
     {
@@ -52,8 +55,8 @@ public class EncodedMotors extends SubsystemBase
 		for (CANSparkMax motor : new CANSparkMax[] { leftMotor, rightMotor})
 		{
             motor.setIdleMode(IdleMode.kBrake);
-            motor.setSoftLimit(SoftLimitDirection.kForward, forwardLimit);
-            motor.setSoftLimit(SoftLimitDirection.kReverse, reverseLimit);
+            motor.setSoftLimit(SoftLimitDirection.kForward, forwardLimitRevs);
+            motor.setSoftLimit(SoftLimitDirection.kReverse, reverseLimitRevs);
             motor.enableSoftLimit(SoftLimitDirection.kForward, true);
             motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
             // The following will cause the motor controller to report position in degrees.
@@ -79,13 +82,13 @@ public class EncodedMotors extends SubsystemBase
 	 */
 	public void setPosition(double position, double tolerance)
 	{ 
-        if (position > forwardLimit)
+        if (position > forwardLimitRevs)
         {
-            position = forwardLimit;
+            position = forwardLimitRevs;
         }    
-        else if (position < reverseLimit)
+        else if (position < reverseLimitRevs)
         {
-            position = reverseLimit;
+            position = reverseLimitRevs;
         }
         positionTolerance = tolerance;  
         targetPosition = position;
