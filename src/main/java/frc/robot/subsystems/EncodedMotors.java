@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -38,6 +39,18 @@ public class EncodedMotors extends SubsystemBase
     /** Creates a new TalonSRX. */
     public EncodedMotors()
     {
+        // Set configuration common to both pivot motors:
+		for (CANSparkMax motor : new CANSparkMax[] { leftMotor, rightMotor})
+		{
+            motor.restoreFactoryDefaults();
+            motor.clearFaults();
+            motor.setIdleMode(IdleMode.kBrake);
+            motor.setSoftLimit(SoftLimitDirection.kForward, forwardLimitRevs);
+            motor.setSoftLimit(SoftLimitDirection.kReverse, reverseLimitRevs);
+            motor.enableSoftLimit(SoftLimitDirection.kForward, true);
+            motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+		}
+
         leftMotor.setInverted(true);
         rightMotor.follow(leftMotor, true);
 
@@ -48,21 +61,7 @@ public class EncodedMotors extends SubsystemBase
         pidController.setD(1);
         pidController.setIZone(0);
         pidController.setFF(0);
-        var pidMotorSpeed = SmartDashboard.getNumber("Motor PID %", 0.05);
-        pidController.setOutputRange(-pidMotorSpeed, pidMotorSpeed);
         
-        // Set configuration common to both pivot motors:
-		for (CANSparkMax motor : new CANSparkMax[] { leftMotor, rightMotor})
-		{
-            motor.setIdleMode(IdleMode.kBrake);
-            motor.setSoftLimit(SoftLimitDirection.kForward, forwardLimitRevs);
-            motor.setSoftLimit(SoftLimitDirection.kReverse, reverseLimitRevs);
-            motor.enableSoftLimit(SoftLimitDirection.kForward, true);
-            motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-            // The following will cause the motor controller to report position in degrees.
-            motor.getEncoder().setPositionConversionFactor(1.0);
-		}
-
         resetPosition();
     }
 
@@ -102,6 +101,10 @@ public class EncodedMotors extends SubsystemBase
 
     public void setSpeed(double speed)
     {
+        if ((speed < 0 && isAtRevLimit()) || (speed > 0 && isAtFwdLimit()))
+        {
+            speed = 0;
+        }
         isAtTargetPosition = false;
         isPositioningStarted = false;
         leftMotor.set(speed);
@@ -118,6 +121,16 @@ public class EncodedMotors extends SubsystemBase
         return isAtTargetPosition;
     }
 
+    public boolean isAtFwdLimit()
+    {
+        return leftMotor.getFault(FaultID.kSoftLimitFwd) || rightMotor.getFault(FaultID.kSoftLimitFwd);
+    }
+
+    public boolean isAtRevLimit()
+    {
+        return leftMotor.getFault(FaultID.kSoftLimitRev) || rightMotor.getFault(FaultID.kSoftLimitRev);
+    }
+
     @Override
     public void periodic()
     {
@@ -126,6 +139,8 @@ public class EncodedMotors extends SubsystemBase
 
         SmartDashboard.putNumber("Left Motor Pos", leftPosition);
         SmartDashboard.putNumber("Right Motor Pos", rightPosition);
+        SmartDashboard.putBoolean("Fwd Limit", !isAtFwdLimit());
+        SmartDashboard.putBoolean("Rev Limit", !isAtRevLimit());
 
         if (isPositioningStarted)
         {

@@ -121,8 +121,12 @@ public class RobotContainer
 
         if (encodedMotors != null)
         {
-            leftBumper.whileTrue(new SetEncodedMotorsSpeed(encodedMotors, "Motor Rev %"));
-            rightBumper.whileTrue(new SetEncodedMotorsSpeed(encodedMotors, "Motor Fwd %"));
+            leftBumper.whileTrue(
+                new SetEncodedMotorsSpeed(encodedMotors, "Motor Rev %")
+                .until(encodedMotors::isAtRevLimit));
+            rightBumper.whileTrue(
+                new SetEncodedMotorsSpeed(encodedMotors, "Motor Fwd %")
+                .until(encodedMotors::isAtFwdLimit));
         }
     }
 
@@ -158,12 +162,12 @@ public class RobotContainer
         if (encodedMotors != null)
         {
             SmartDashboard.putNumber("Motor Target Pos", 24.0);
-            SmartDashboard.putNumber("Motor PID Tolerance", 0.5);
+            SmartDashboard.putNumber("Motor PID Tolerance", 0.1);
             SmartDashboard.putNumber("Motor Fwd %", 0.08);
             SmartDashboard.putNumber("Motor Rev %", -0.08);
             SmartDashboard.putNumber("Motor PID %", 0.08);
             SmartDashboard.putData("Reset Motor Pos", new InstantCommand(() -> encodedMotors.resetPosition()));
-            SmartDashboard.putData("Set Motor Pos", new SetEncodedMotorsPosition(encodedMotors, "Motor Target Pos", "Motor PID Tolerance"));
+            SmartDashboard.putData(new SetEncodedMotorsPosition(encodedMotors, "Motor Target Pos", "Motor PID Tolerance"));
         }
     }
 
