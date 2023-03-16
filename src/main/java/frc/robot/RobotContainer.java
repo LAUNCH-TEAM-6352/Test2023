@@ -11,6 +11,7 @@ import frc.robot.commands.SetEncodedMotorSpeed;
 import frc.robot.commands.SetEncodedMotorsPosition;
 import frc.robot.commands.SetEncodedMotorsSpeed;
 import frc.robot.commands.SetLinearServoPosition;
+import frc.robot.subsystems.CANLight;
 import frc.robot.subsystems.EncodedMotor;
 import frc.robot.subsystems.EncodedMotors;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -44,6 +45,7 @@ public class RobotContainer
     private final LinearServo linearServo;
     private final EncodedMotor encodedMotor;
     private final EncodedMotors encodedMotors;
+    private final CANLight canLight;
     
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -70,6 +72,7 @@ public class RobotContainer
         linearServo = gameData.contains("-ls-") ? new LinearServo() : null;
         encodedMotor = gameData.contains("-em-") ? new EncodedMotor() : null;
         encodedMotors = gameData.contains("-ems-") ? new EncodedMotors() : null;
+        canLight = gameData.contains("-cl-") ? new CANLight() : null;
 
         if (gamepad != null)
         {
@@ -168,6 +171,26 @@ public class RobotContainer
             SmartDashboard.putNumber("Motor PID %", 0.08);
             SmartDashboard.putData("Reset Motor Pos", new InstantCommand(() -> encodedMotors.resetPosition()));
             SmartDashboard.putData(new SetEncodedMotorsPosition(encodedMotors, "Motor Target Pos", "Motor PID Tolerance"));
+        }
+
+        if (canLight != null)
+        {
+            SmartDashboard.putData(canLight);
+            SmartDashboard.putData("CL Get FW Ver", new InstantCommand(() -> canLight.writeRTRFrame(CANLight.firmwareVersionApiId)));
+            SmartDashboard.putData("CL Get Status", new InstantCommand(() -> canLight.writeRTRFrame(CANLight.statusDataApiId)));
+            SmartDashboard.putData("CL Get Dev Name", new InstantCommand(() -> canLight.writeRTRFrame(CANLight.devNameApiId)));
+            SmartDashboard.putData("CL Get Dev Ser No", new InstantCommand(() -> canLight.writeRTRFrame(CANLight.devSerNoApiId)));
+            SmartDashboard.putData("CL Write Packet", new InstantCommand(() -> canLight.writePacket()));
+            SmartDashboard.putNumber("CL API", 0);
+            SmartDashboard.putNumber("CL data len", 0);
+            SmartDashboard.putNumber("CL data[0]", 0);
+            SmartDashboard.putNumber("CL data[1]", 0);
+            SmartDashboard.putNumber("CL data[2]", 0);
+            SmartDashboard.putNumber("CL data[3]", 0);
+            SmartDashboard.putNumber("CL data[4]", 0);
+            SmartDashboard.putNumber("CL data[5]", 0);
+            SmartDashboard.putNumber("CL data[6]", 0);
+            SmartDashboard.putNumber("CL data[7]", 0);
         }
     }
 
