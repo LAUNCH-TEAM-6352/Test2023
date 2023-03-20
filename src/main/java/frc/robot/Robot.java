@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -68,6 +69,14 @@ public class Robot extends TimedRobot
         if (revDigitBoard != null)
         {
             revDigitBoard.clear();
+        }
+
+        if (gameData.contains("-cam-"))
+        {
+            var camera = CameraServer.startAutomaticCapture();
+            camera.setFPS(10);
+            camera.setResolution(320, 240);
+            //camera.setResolution(480, 360);
         }
     }
 
