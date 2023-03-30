@@ -4,12 +4,16 @@
 
 package frc.robot;
 
+import com.revrobotics.ColorSensorV3;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.SPI;
@@ -41,6 +45,8 @@ public class Robot extends TimedRobot
 
     public REVDigitBoard revDigitBoard;
 
+    public ColorSensorV3 colorSensor;
+
     /**
      * This function is run when the robot is first started up and should be used
      * for any
@@ -60,7 +66,11 @@ public class Robot extends TimedRobot
         adis16470Imu = gameData.contains("-imu-") ? new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s) : null;
         digitalOutput = gameData.contains("-do-") ? new DigitalOutput(0) : null;
         revDigitBoard = koehringTesting ? new REVDigitBoard() : null;
+        colorSensor = gameData.contains("-cs-") ? new ColorSensorV3(Port.kOnboard) : null;
 
+        if (colorSensor != null)
+        {
+        }
         gamepad = DriverStation.isJoystickConnected(0)
             ? new XboxController(0)
             : null;
@@ -101,6 +111,15 @@ public class Robot extends TimedRobot
         // robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+
+        if (colorSensor != null)
+        {
+            SmartDashboard.putNumber("CS Red", colorSensor.getRed());
+            SmartDashboard.putNumber("CS Green", colorSensor.getGreen());
+            SmartDashboard.putNumber("CS Blue", colorSensor.getBlue());
+            SmartDashboard.putString("CS Color", colorSensor.getColor().toString());
+            SmartDashboard.putNumber("CS Proximity", colorSensor.getProximity());
+        }
     }
 
     /** This function is called once each time the robot enters Disabled mode. */
