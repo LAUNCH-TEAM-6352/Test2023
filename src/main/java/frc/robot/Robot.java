@@ -70,6 +70,7 @@ public class Robot extends TimedRobot
 
         if (colorSensor != null)
         {
+            
         }
         gamepad = DriverStation.isJoystickConnected(0)
             ? new XboxController(0)
